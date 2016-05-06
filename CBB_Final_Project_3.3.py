@@ -4,18 +4,21 @@ Created on Thu May  5 11:12:30 2016
 
 @author: kevin
 """
-### This is one way to read in arguments in Python. We need to read input file and score file.
+
+import argparse
+import numpy as np
+import scipy.stats
+import operator
+
+### This is one way to read in arguments in Python..
 parser = argparse.ArgumentParser(description='Enrichment Score Calculator')
 parser.add_argument('-gct', '--gct', help='GCT file name', required=True)
 parser.add_argument('-cls', '--cls', help='CLS file name', required=True)
 parser.add_argument('-gs', '--geneset' , help='Gene set', required=True)
 args = parser.parse_args()
 
-import numpy as np
-import scipy.stats
-import operator
 #---------------Read Data into table-----------------#
-GCT = open(parser.gct, "rb")
+GCT = open(args.gct, "rb")
 genes = []
 for G in GCT:
     genes.append(G.split("\t"))
@@ -29,7 +32,7 @@ genes = genes[:,range(2,np.shape(genes)[1])]
 genes = np.delete(genes, (1), axis=0)
 genes = genes.T
 
-CLS = open(parser.cls, "rb")
+CLS = open(args.cls, "rb")
 for C in CLS:
     target = C.split(" ")
 target = map(int, target)
@@ -41,13 +44,13 @@ ALL = []
 pVals = {}
 
 for i in range(1,len(genes)):
-    ALL = map(int, genes[i][range(1,numZero+1)])
-    AML = map(int, genes[i][range(numZero+1,numZero+numOne+1)])
+    ALL = map(float, genes[i][range(1,numZero+1)])
+    AML = map(float, genes[i][range(numZero+1,numZero+numOne+1)])
     pVals[genes[i][0]] = scipy.stats.ttest_ind(ALL, AML)[1]
 
 sorted_pVals = sorted(pVals.items(), key=operator.itemgetter(1))
 
-geneset = open(parser.geneset, "r")
+geneset = open(args.geneset, "r")
 GeneSet2 = []
 for GS in geneset:
     GS = GS.replace("\n","")
@@ -60,7 +63,7 @@ listOfGenesInBoth = []
 numHits = 0
 for gene in GeneSet2:
     for j in range(len(sorted_pVals)):
-        if gene in sorted_pVals[i][0]:
+        if gene in sorted_pVals[j][0]:
             listOfGenesInBoth.append(sorted_pVals[i][0])
             sumOfPVals += sorted_pVals[i][1]
             numHits += 1
@@ -68,8 +71,8 @@ for gene in GeneSet2:
 Phit = 0
 for gene in GeneSet2:
     for j in range(len(sorted_pVals)):
-        if gene in sorted_pVals[i][0]:
-            Phit += sorted_pVals[i][0]/sumOfPVals
+        if gene in sorted_pVals[j][0]:
+            Phit += sorted_pVals[j][0]/sumOfPVals
 nonHits = abs(len(genes)-numHits)
 
 Pmiss = 0

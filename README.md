@@ -17,6 +17,45 @@ Files:
 
 ```
 
+###Input Examples:
+####GCT file
+```
+#1.2																																							
+7129	38																																						
+Name	Description	ALL_19769_B-cell	ALL_23953_B-cell	ALL_28373_B-cell ...
+AFFX-BioB-5_at	AFFX-BioB-5_at (endogenous control)	-214	-135	-106 ...
+AFFX-BioB-M_at	AFFX-BioB-M_at (endogenous control)	-153	-114	-125 ...
+AFFX-BioB-3_at	AFFX-BioB-3_at (endogenous control)	-58	265	-76 ...
+AFFX-BioC-5_at	AFFX-BioC-5_at (endogenous control)	88	12	168 ...
+...
+...
+...
+```
+####CLS file:
+```
+38 2 1
+# ALL AML
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1
+```
+
+####Gene Set
+```
+HALLMARK_ADIPOGENESIS
+> Genes up-regulated during adipocyte differentiation (adipogenesis).
+ABCA1
+ABCB8
+ACAA2
+ACADL
+ACADM
+ACADS
+ACLY
+ACO2
+ACOX1
+ADCY6
+ADIG
+ADIPOQ
+...
+```
 ##Output:
 
 Printout of the Enrichment Score in the terminal

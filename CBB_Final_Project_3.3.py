@@ -4,11 +4,18 @@ Created on Thu May  5 11:12:30 2016
 
 @author: kevin
 """
+### This is one way to read in arguments in Python. We need to read input file and score file.
+parser = argparse.ArgumentParser(description='Enrichment Score Calculator')
+parser.add_argument('-gct', '--gct', help='GCT file name', required=True)
+parser.add_argument('-cls', '--cls', help='CLS file name', required=True)
+parser.add_argument('-gs', '--geneset' , help='Gene set', required=True)
+args = parser.parse_args()
+
 import numpy as np
 import scipy.stats
 import operator
 #---------------Read Data into table-----------------#
-GCT = open("all_aml_train.gct", "rb")
+GCT = open(parser.gct, "rb")
 genes = []
 for G in GCT:
     genes.append(G.split("\t"))
@@ -22,7 +29,7 @@ genes = genes[:,range(2,np.shape(genes)[1])]
 genes = np.delete(genes, (1), axis=0)
 genes = genes.T
 
-CLS = open("all_aml_train.cls", "rb")
+CLS = open(parser.cls, "rb")
 for C in CLS:
     target = C.split(" ")
 target = map(int, target)
@@ -40,7 +47,7 @@ for i in range(1,len(genes)):
 
 sorted_pVals = sorted(pVals.items(), key=operator.itemgetter(1))
 
-geneset = open("geneset.txt", "r")
+geneset = open(parser.geneset, "r")
 GeneSet2 = []
 for GS in geneset:
     GS = GS.replace("\n","")

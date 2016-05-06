@@ -7,7 +7,9 @@ Gene set from microarray (usually a microarray experiment)
 Files:
 
 1.a GCT file (Microarray Experiment [The experiment matrix])
+
 2.a CLS file (Microarray Experiment Sample Outcomes [The target vector])
+
 3.a TXT file (the other gene set in txt format [all genes must be seperated by new lines "\n" and must have two lines that will be skipped before the first gene similar to the msigdb gene sets]) 
 
 ##Output:

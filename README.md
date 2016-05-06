@@ -12,6 +12,11 @@ Files:
 
 3.a TXT file (the other gene set in txt format [all genes must be seperated by new lines "\n" and must have two lines that will be skipped before the first gene similar to the msigdb gene sets]) 
 
+```{python}
+ python CBB_Final_Project_3.3.py -gct all_aml_train.preprocessed.gct -cls all_aml_train.cls -gs geneset.txt 
+
+```
+
 ##Output:
 
 Printout of the Enrichment Score in the terminal

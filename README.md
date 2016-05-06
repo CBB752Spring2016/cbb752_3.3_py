@@ -1,1 +1,5 @@
-# cbb752_3.3_py
+# Calculate Enrichment Score of two gene sets
+
+##Input:
+Gene set from microarray (usually a microarray experiment)
+

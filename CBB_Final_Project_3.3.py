@@ -19,9 +19,9 @@ parser.add_argument('-cls', '--cls', help='CLS file name', required=True)
 parser.add_argument('-gs', '--geneset' , help='Gene set', required=True)
 args = parser.parse_args()
 
-args.gct = "all_aml_train.gct"
-args.cls = "all_aml_train.cls"
-args.geneset = "geneset.txt"
+#args.gct = "all_aml_train.gct"
+#args.cls = "all_aml_train.cls"
+#args.geneset = "geneset.txt"
 #---------------Read Data into table-----------------#
 GCT = open(args.gct, "rb")
 genes = []

@@ -37,7 +37,7 @@ genes = np.array(genes).T
 genes = genes[:,range(2,np.shape(genes)[1])]
 genes = np.delete(genes, (1), axis=0)
 genes = genes.T
-
+#--------------#read CLS into file#--------------#
 CLS = open(args.cls, "rb")
 for C in CLS:
     target = C.split(" ")
@@ -48,17 +48,18 @@ numOne = target.count(1)#AML
 AML = []
 ALL = []
 pVals = {}
-
+#--------------#Get P-Vals#--------------#
 for i in range(1,len(genes)):
     ALL = map(float, genes[i][range(1,numZero+1)])
     AML = map(float, genes[i][range(numZero+1,numZero+numOne+1)])
     pVals[genes[i][0]] = scipy.stats.ttest_ind(ALL, AML,equal_var=False)[1]
 
+#--------------#Sort P-Vals#--------------#
 sorted_pVals = pd.DataFrame(pVals.items(),columns=['Name', 'P-Val'])
 sorted_pVals = sorted_pVals.sort_values("P-Val")
 sorted_pVals = sorted_pVals.reset_index(drop = True)
 
-
+#--------------#read geneset into file#--------------#
 geneset = open(args.geneset, "r")
 GeneSet2 = []
 for GS in geneset:
@@ -66,6 +67,7 @@ for GS in geneset:
     GeneSet2.append(GS)
 GeneSet2 = GeneSet2[2:len(GeneSet2)]
 
+#--------------#Get gene intersection#--------------#
 listOfGenesInBoth = list(set(GeneSet2).intersection(sorted_pVals['Name'].tolist()))
 sorted_pVals['Flag'] = 0
 #sorted_pVals[sorted_pVals.Name.isin(listOfGenesInBoth)]['Flag']
@@ -95,6 +97,8 @@ WeightedPval = sorted_pVals['Weighted_P-Val'].tolist()
 pHit = []
 pMis = []
 ES = []
+#--------------#Get pHits#--------------#
+#Note Pandas is very slow, so not using the dataframe
 for i in range(len(WeightedPval)):
     sumWeightedPval += WeightedPval[i]
     pHit.append(sumWeightedPval)
@@ -102,10 +106,11 @@ for i in range(len(WeightedPval)):
     #sorted_pVals['pHit'][i] = sumWeightedPval
     #sorted_pVals['pMiss'][i] = formulaPMiss*i
 
+#added the data to the pandas df, but we are not using it
 sorted_pVals['pHit'] = pHit
 sorted_pVals['pMiss'] = pMis
 
-
+#--------------#Subtract the pHit-pMis element-wise#--------------#
 ES = [abs(i - j) for i, j in zip(pHit, pMis)]
 max(ES)
 

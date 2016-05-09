@@ -9,7 +9,9 @@ import argparse
 import numpy as np
 import scipy.stats
 import operator
-
+import re
+import pandas as pd
+pd.set_option('precision',15)
 ### This is one way to read in arguments in Python..
 parser = argparse.ArgumentParser(description='Enrichment Score Calculator')
 parser.add_argument('-gct', '--gct', help='GCT file name', required=True)
@@ -17,6 +19,9 @@ parser.add_argument('-cls', '--cls', help='CLS file name', required=True)
 parser.add_argument('-gs', '--geneset' , help='Gene set', required=True)
 args = parser.parse_args()
 
+args.gct = "all_aml_train.gct"
+args.cls = "all_aml_train.cls"
+args.geneset = "geneset.txt"
 #---------------Read Data into table-----------------#
 GCT = open(args.gct, "rb")
 genes = []
@@ -26,6 +31,7 @@ for G in GCT:
 np.shape(genes)
 for i in range(len(genes)):
     genes[i][39] = genes[i][39].replace("\r\n","")
+    #genes[i][0] = re.sub("_[A-z]*","",genes[i][0])##we should not remove the AT stuff
 #cleaning
 genes = np.array(genes).T
 genes = genes[:,range(2,np.shape(genes)[1])]
@@ -46,9 +52,12 @@ pVals = {}
 for i in range(1,len(genes)):
     ALL = map(float, genes[i][range(1,numZero+1)])
     AML = map(float, genes[i][range(numZero+1,numZero+numOne+1)])
-    pVals[genes[i][0]] = scipy.stats.ttest_ind(ALL, AML)[1]
+    pVals[genes[i][0]] = scipy.stats.ttest_ind(ALL, AML,equal_var=False)[1]
 
-sorted_pVals = sorted(pVals.items(), key=operator.itemgetter(1))
+sorted_pVals = pd.DataFrame(pVals.items(),columns=['Name', 'P-Val'])
+sorted_pVals = sorted_pVals.sort_values("P-Val")
+sorted_pVals = sorted_pVals.reset_index(drop = True)
+
 
 geneset = open(args.geneset, "r")
 GeneSet2 = []
@@ -57,28 +66,54 @@ for GS in geneset:
     GeneSet2.append(GS)
 GeneSet2 = GeneSet2[2:len(GeneSet2)]
 
+listOfGenesInBoth = list(set(GeneSet2).intersection(sorted_pVals['Name'].tolist()))
+sorted_pVals['Flag'] = 0
+#sorted_pVals[sorted_pVals.Name.isin(listOfGenesInBoth)]['Flag']
+#Set the flag for the genes in both
+sorted_pVals.loc[sorted_pVals.Name.isin(listOfGenesInBoth), 'Flag'] = 1
 
-sumOfPVals = 0
-listOfGenesInBoth = []
-numHits = 0
-for gene in GeneSet2:
-    for j in range(len(sorted_pVals)):
-        if gene in sorted_pVals[j][0]:
-            listOfGenesInBoth.append(sorted_pVals[i][0])
-            sumOfPVals += sorted_pVals[i][1]
-            numHits += 1
+#get total sum of values
+sumOfPVals = sorted_pVals.loc[sorted_pVals.Flag == 1, 'P-Val'].sum()
+#sorted_pVals[sorted_pVals.Name == "L49219"]
 
-Phit = 0
-for gene in GeneSet2:
-    for j in range(len(sorted_pVals)):
-        if gene in sorted_pVals[j][0]:
-            Phit += sorted_pVals[j][0]/sumOfPVals
+#get number of hits
+numHits = sorted_pVals.loc[sorted_pVals.Flag == 1, 'Flag'].sum()
+#get non hits
 nonHits = abs(len(genes)-numHits)
+#get weighted
+sorted_pVals['Weighted_P-Val'] = 0.0
+sorted_pVals.loc[sorted_pVals.Flag == 1,'Weighted_P-Val'] = sorted_pVals.loc[sorted_pVals.Flag == 1, 'P-Val']/sumOfPVals
+sorted_pVals['pHit'] = 0
+sorted_pVals['pMiss'] = 0
 
-Pmiss = 0
-for i in range(len(genes)):
-    Pmiss += 1/nonHits
+formulaPMiss = 1/float(len(sorted_pVals) - numHits)
+#formulaPMiss = 1/float(2759 - numHits)
 
-ES = Phit - Pmiss
 
-print ("The Enrichment Score is: " +  str(ES))
+sumWeightedPval = 0
+WeightedPval = sorted_pVals['Weighted_P-Val'].tolist()
+pHit = []
+pMis = []
+ES = []
+for i in range(len(WeightedPval)):
+    sumWeightedPval += WeightedPval[i]
+    pHit.append(sumWeightedPval)
+    pMis.append(formulaPMiss*i)
+    #sorted_pVals['pHit'][i] = sumWeightedPval
+    #sorted_pVals['pMiss'][i] = formulaPMiss*i
+
+sorted_pVals['pHit'] = pHit
+sorted_pVals['pMiss'] = pMis
+
+
+ES = [abs(i - j) for i, j in zip(pHit, pMis)]
+max(ES)
+
+print ("The Enrichment Score is: " +  str(max(ES)))
+#listTest = ["L05514","L49173","L49219","L49229","L76670","M19045","M23575","S78693",
+#            "X14008","X59244","X97230","D16154"]
+#
+#for text in genes[:,0]:
+#    for sList in listTest:
+#        if sList in text:
+#            print(text)

@@ -81,3 +81,6 @@ approach for interpreting genome-wide
 expression profiles](http://www.pnas.org/content/102/43/15545.full.pdf): Aravind Subramaniana, Pablo Tamayoa, Vamsi K. Moothaa, Sayan Mukherjeed, Benjamin L. Eberta, Michael A. Gillettea, Amanda Paulovichg, Scott L. Pomeroyh, Todd R. Goluba, Eric S. Landera, and Jill P. Mesirova,
 
 2.[Gene set analysis methods: statistical models and methodological differences](http://bib.oxfordjournals.org/content/15/4/504.full): Henryk Maciejewski, Institute of Computer Engineering, Control and Robotics, Wroclaw University of Technology
+
+###NOTE:
+The genes in the gene set and the genes in the GCT file must be in the same format, so if the genes have some extension such as _at or _st then your gene set must have this otherwise it will not match up!

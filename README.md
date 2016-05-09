@@ -58,7 +58,10 @@ ADIPOQ
 ```
 ##Output:
 
-Printout of the Enrichment Score in the terminal
+Print out of the Enrichment Score in the terminal. Example:
+```
+The Enrichment Score is: 0.474532816974
+```
 
 #Explanation of algorithm
 
